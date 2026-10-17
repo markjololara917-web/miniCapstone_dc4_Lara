@@ -1,16 +1,65 @@
-# React + Vite
+# Classroom Readiness Monitoring and Issue Reporting System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite frontend and Laravel 12 REST API backend for classroom inspections and facilities issue tracking.
 
-Currently, two official plugins are available:
+## Requirements
+- PHP 8.2+, Composer
+- Node.js and npm
+- XAMPP MySQL/MariaDB
+- A MySQL database named `classroom_monitoring`
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Backend setup (Windows)
+1. Start **MySQL** in XAMPP.
+2. In phpMyAdmin, create a database named `classroom_monitoring`.
+3. Open a terminal in `MonitoringSystem\backend`.
+4. Copy `.env.example` to `.env` if `.env` does not exist. Set:
+   - `DB_CONNECTION=mysql`
+   - `DB_HOST=127.0.0.1`
+   - `DB_PORT=3306`
+   - `DB_DATABASE=classroom_monitoring`
+   - `DB_USERNAME=root`
+   - `DB_PASSWORD=` (empty only if your local XAMPP root account has no password)
+5. Run:
+   ```bash
+   php artisan key:generate
+   php artisan migrate --seed
+   php artisan serve
+   ```
+   Keep this terminal open. API runs at `http://127.0.0.1:8000`.
 
-## React Compiler
+### Demo accounts
+- Admin: `admin@classready.test` / `Admin12345!`
+- Teacher: `teacher@classready.test` / `Teacher12345!`
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+These are development-only demo credentials. Change/remove them before any public deployment.
 
-## Expanding the ESLint configuration
+## Frontend setup
+Open a second terminal in the project root (`MonitoringSystem`):
+```bash
+npm install
+npm run dev
+```
+Open the Vite URL shown in the terminal, normally `http://localhost:5173`.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## API authentication token
+The login endpoint is `POST http://127.0.0.1:8000/api/login` with JSON:
+```json
+{ "email": "admin@classready.test", "password": "Admin12345!" }
+```
+The response includes a `token`. The React frontend stores it for this development app and sends it on protected requests as:
+`Authorization: Bearer YOUR_TOKEN_HERE`.
+
+Use `POST /api/logout` with the same Bearer token to revoke the current token. Do not share or commit real tokens or `.env` secrets. A token is not a user's password; it is a credential that grants API access until revoked or expired according to your application's token policy.
+
+## Main API endpoints
+- `POST /api/login`, `GET /api/me`, `POST /api/logout`
+- `GET|POST /api/classrooms`, `GET|PUT|DELETE /api/classrooms/{id}`
+- `GET|POST /api/readiness-checks`, `GET|PUT|DELETE /api/readiness-checks/{id}`
+- `GET|POST /api/issue-reports`, `GET|PUT|DELETE /api/issue-reports/{id}`
+- Admin only: `GET|POST /api/users`, `PUT|DELETE /api/users/{id}`
+- `GET /api/dashboard`
+
+All resources use JSON responses. Lists are paginated. Protected endpoints require a Sanctum Bearer token.
+
+## Important
+Never run `php artisan migrate:fresh` against a database containing data you need; it drops tables. For this project, use `php artisan migrate` after reviewing the migration files.
