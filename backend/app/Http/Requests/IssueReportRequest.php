@@ -19,6 +19,7 @@ class IssueReportRequest extends FormRequest
             'priority' => ['required', Rule::in(['low', 'medium', 'high', 'urgent'])],
             'status' => ['sometimes', Rule::in(['reported', 'assigned', 'in_progress', 'resolved'])],
             'resolution_notes' => ['nullable', 'string', 'max:3000'],
+            'assigned_to' => ['sometimes', 'nullable', 'integer', 'exists:users,id'],
         ];
     }
 }

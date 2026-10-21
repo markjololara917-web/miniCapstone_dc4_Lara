@@ -13,12 +13,12 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'email', 'role', 'password'];
+    protected $fillable = ['name', 'email', 'role', 'password', 'admin_id', 'invite_code', 'is_active', 'is_temporary_admin'];
     protected $hidden = ['password', 'remember_token'];
 
     protected function casts(): array
     {
-        return ['email_verified_at' => 'datetime', 'password' => 'hashed'];
+        return ['email_verified_at' => 'datetime', 'password' => 'hashed', 'is_temporary_admin' => 'boolean', 'is_active' => 'boolean'];
     }
 
     public function readinessChecks()
@@ -29,5 +29,15 @@ class User extends Authenticatable
     public function issueReports()
     {
         return $this->hasMany(IssueReport::class, 'reported_by');
+    }
+
+    public function teachers()
+    {
+        return $this->hasMany(User::class, 'admin_id');
+    }
+
+    public function administrator()
+    {
+        return $this->belongsTo(User::class, 'admin_id');
     }
 }

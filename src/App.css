@@ -1,1 +1,7 @@
 /* Starter Vite styles removed; application styles live in pages_style/home_style.css. */
+
+.assignment-control { display: flex; flex-direction: column; gap: 6px; min-width: 150px; }
+.assignment-control select, .assignment-control textarea { width: 100%; min-width: 150px; border: 1px solid var(--border, #dbe2ea); border-radius: 8px; padding: 8px 10px; font: inherit; background: var(--surface, #fff); color: inherit; }
+.assignment-control textarea { resize: vertical; }
+.assignment-control button { align-self: flex-start; border: 0; border-radius: 7px; padding: 7px 10px; cursor: pointer; font: inherit; background: var(--primary, #243c72); color: #fff; }
+.assignment-control button:disabled { opacity: .45; cursor: not-allowed; }

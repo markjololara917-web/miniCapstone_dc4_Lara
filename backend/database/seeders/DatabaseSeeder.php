@@ -15,11 +15,11 @@ class DatabaseSeeder extends Seeder
     {
         $admin = User::updateOrCreate(
             ['email' => 'admin@classready.test'],
-            ['name' => 'System Administrator', 'role' => 'admin', 'password' => Hash::make('Admin12345!')]
+            ['name' => 'System Administrator', 'role' => 'admin', 'invite_code' => 'CLASSREADY26', 'password' => Hash::make('Admin12345!')]
         );
         $teacher = User::updateOrCreate(
             ['email' => 'teacher@classready.test'],
-            ['name' => 'Demo Teacher', 'role' => 'teacher', 'password' => Hash::make('Teacher12345!')]
+            ['name' => 'Demo Teacher', 'role' => 'teacher', 'admin_id' => $admin->id, 'password' => Hash::make('Teacher12345!')]
         );
 
         $rooms = [
