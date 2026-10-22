@@ -66,8 +66,8 @@ Use the accounts configured in the database seeder.
 
 | Role | Email | Password |
 |---|---|---|
-| Admin | Use the actual seeded admin account | Use its seeded password |
-| Teacher | Use the actual seeded teacher account | Use its seeded password |
+| Admin |admin@classready.test | Admin12345! |
+| Teacher |teacher@classready.test | Teacher12345!|
 
 **Note:** Replace these placeholders with the actual development credentials and verify that both accounts can log in.
 
