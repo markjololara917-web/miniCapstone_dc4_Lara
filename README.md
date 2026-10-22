@@ -75,7 +75,7 @@ Use the accounts configured in the database seeder.
 
 - ERD: https://docs.google.com/document/d/1owyvWOKBaePVdzSI1t8czvRudCUzo9ycc_PCZGUZFwY/edit?usp=sharing
 - API Documentation: https://docs.google.com/document/d/1951TzLbNjhhmc5DPz62yB3af928djh-pe5DA18JHj0g/edit?usp=sharing
-- Screenshots: https://docs.google.com/document/d/1bMtK1y5_Bh8gIJQxSzTx9ECvGgrq2RyfaC3G9dl53iI/edit?usp=sharing
+- Screenshots: https://docs.google.com/document/d/1bMtK1y5_Bh8gIJQxSzTx9ECvGgrq2RyfaC3G9dl53iI/edit?tab=t.0
 
 ## 7. Demo Video
 
