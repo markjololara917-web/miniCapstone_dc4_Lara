@@ -15,41 +15,140 @@ class DatabaseSeeder extends Seeder
     {
         $admin = User::updateOrCreate(
             ['email' => 'admin@classready.test'],
-            ['name' => 'System Administrator', 'role' => 'admin', 'invite_code' => 'CLASSREADY26', 'password' => Hash::make('Admin12345!')]
-        );
-        $teacher = User::updateOrCreate(
-            ['email' => 'teacher@classready.test'],
-            ['name' => 'Demo Teacher', 'role' => 'teacher', 'admin_id' => $admin->id, 'password' => Hash::make('Teacher12345!')]
+            [
+                'name' => 'System Administrator',
+                'role' => 'admin',
+                'invite_code' => 'CLASSREADY26',
+                'password' => Hash::make('Admin12345!'),
+            ]
         );
 
-        $rooms = [
-            ['room_code' => 'ROOM-101', 'building' => 'Main Building', 'floor' => '1st Floor', 'capacity' => 40, 'notes' => 'General classroom'],
-            ['room_code' => 'ROOM-108', 'building' => 'Main Building', 'floor' => '1st Floor', 'capacity' => 35, 'notes' => null],
-            ['room_code' => 'ROOM-204', 'building' => 'North Wing', 'floor' => '2nd Floor', 'capacity' => 40, 'notes' => null],
-            ['room_code' => 'LAB-03', 'building' => 'Science Building', 'floor' => 'Ground Floor', 'capacity' => 30, 'notes' => 'Science laboratory'],
-        ];
-        foreach ($rooms as $roomData) {
-            $room = Classroom::updateOrCreate(['room_code' => $roomData['room_code']], $roomData);
-            if (!$room->readinessChecks()->exists()) {
-                ReadinessCheck::create([
-                    'classroom_id' => $room->id,
-                    'inspected_by' => $teacher->id,
-                    'checked_at' => now()->toDateString(),
-                    'cleanliness' => $room->room_code === 'ROOM-204' ? 'needs_attention' : 'good',
-                    'chairs' => 'good',
-                    'lights' => 'good',
-                    'fans' => $room->room_code === 'ROOM-204' ? 'poor' : 'good',
-                    'equipment' => $room->room_code === 'LAB-03' ? 'needs_attention' : 'good',
-                    'notes' => 'Initial demo inspection',
-                    'status' => in_array($room->room_code, ['ROOM-204', 'LAB-03'], true) ? 'needs_attention' : 'ready',
-                ]);
-            }
+        $teachers = collect();
+
+        $teachers->push(
+            User::updateOrCreate(
+                ['email' => 'teacher@classready.test'],
+                [
+                    'name' => 'Demo Teacher',
+                    'role' => 'teacher',
+                    'admin_id' => $admin->id,
+                    'password' => Hash::make('Teacher12345!'),
+                ]
+            )
+        );
+
+        for ($i = 1; $i <= 20; $i++) {
+            $teachers->push(
+                User::updateOrCreate(
+                    ['email' => "teacher{$i}@classready.test"],
+                    [
+                        'name' => "Demo Teacher {$i}",
+                        'role' => 'teacher',
+                        'admin_id' => $admin->id,
+                        'password' => Hash::make('Teacher12345!'),
+                    ]
+                )
+            );
         }
 
-        $room = Classroom::where('room_code', 'ROOM-204')->first();
-        IssueReport::updateOrCreate(
-            ['title' => 'Ceiling fan not working', 'classroom_id' => $room->id],
-            ['reported_by' => $teacher->id, 'description' => 'The ceiling fan does not turn on during class.', 'category' => 'electrical', 'priority' => 'high', 'status' => 'reported']
-        );
+        $buildings = [
+            'Main Building',
+            'North Wing',
+            'Science Building',
+            'Computer Building',
+            'South Building',
+        ];
+
+        $rooms = [];
+
+        for ($i = 1; $i <= 30; $i++) {
+            $buildingIndex = ($i - 1) % count($buildings);
+            $roomNumber = 100 + $i;
+
+            $rooms[] = Classroom::updateOrCreate(
+                ['room_code' => "ROOM-{$roomNumber}"],
+                [
+                    'building' => $buildings[$buildingIndex],
+                    'floor' => match (true) {
+                        $i <= 10 => '1st Floor',
+                        $i <= 20 => '2nd Floor',
+                        default => '3rd Floor',
+                    },
+                    'capacity' => [25, 30, 35, 40][$i % 4],
+                    'notes' => $i % 5 === 0
+                        ? 'Requires regular inspection'
+                        : 'General classroom',
+                ]
+            );
+        }
+
+        $categories = [
+            'electrical',
+            'furniture',
+            'cleanliness',
+            'equipment',
+            'maintenance',
+        ];
+
+        $statuses = [
+            'reported',
+            'in_progress',
+            'resolved',
+        ];
+
+        foreach ($rooms as $index => $room) {
+            $teacher = $teachers[$index % $teachers->count()];
+
+            ReadinessCheck::updateOrCreate(
+                [
+                    'classroom_id' => $room->id,
+                    'notes' => 'Automatic demo inspection',
+                ],
+                [
+                    'inspected_by' => $teacher->id,
+                    'checked_at' => now()
+                        ->subDays($index % 30)
+                        ->toDateString(),
+                    'cleanliness' => $index % 5 === 0
+                        ? 'needs_attention'
+                        : 'good',
+                    'chairs' => $index % 7 === 0
+                        ? 'needs_attention'
+                        : 'good',
+                    'lights' => $index % 9 === 0
+                        ? 'poor'
+                        : 'good',
+                    'fans' => $index % 6 === 0
+                        ? 'poor'
+                        : 'good',
+                    'equipment' => $index % 8 === 0
+                        ? 'needs_attention'
+                        : 'good',
+                    'notes' => 'Automatic demo inspection',
+                    'status' => $index % 5 === 0
+                        ? 'needs_attention'
+                        : 'ready',
+                ]
+            );
+        }
+
+        for ($i = 1; $i <= 40; $i++) {
+            $room = $rooms[($i - 1) % count($rooms)];
+            $teacher = $teachers[($i - 1) % $teachers->count()];
+
+            IssueReport::updateOrCreate(
+                [
+                    'title' => "Demo Issue {$i}",
+                    'classroom_id' => $room->id,
+                ],
+                [
+                    'reported_by' => $teacher->id,
+                    'description' => "Sample maintenance issue {$i} in {$room->room_code}.",
+                    'category' => $categories[($i - 1) % count($categories)],
+                    'priority' => ['low', 'medium', 'high'][$i % 3],
+                    'status' => $statuses[($i - 1) % count($statuses)],
+                ]
+            );
+        }
     }
 }
